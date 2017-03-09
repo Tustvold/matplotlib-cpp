@@ -129,7 +129,7 @@ namespace matplotlibcpp {
         };
     }
 
-    bool annotate(std::string annotation, double x, double y) {
+    inline bool annotate(std::string annotation, double x, double y) {
         PyObject *xy = PyTuple_New(2);
         PyObject *str = PyString_FromString(annotation.c_str());
 
@@ -420,7 +420,7 @@ namespace matplotlibcpp {
     }
 
 
-    double *xlim() {
+    inline double *xlim() {
         PyObject *args = PyTuple_New(0);
         PyObject *res = PyObject_CallObject(detail::_interpreter::get().s_python_function_xlim, args);
         PyObject *left = PyTuple_GetItem(res, 0);
@@ -435,7 +435,7 @@ namespace matplotlibcpp {
     }
 
 
-    double *ylim() {
+    inline double *ylim() {
         PyObject *args = PyTuple_New(0);
         PyObject *res = PyObject_CallObject(detail::_interpreter::get().s_python_function_ylim, args);
         PyObject *left = PyTuple_GetItem(res, 0);
@@ -654,10 +654,10 @@ namespace matplotlibcpp {
 
     // recursion stop for the above
     template<typename... Args>
-    bool plot() { return true; }
+    inline bool plot() { return true; }
 
     template<typename A, typename B, typename... Args>
-    bool plot(const A &a, const B &b, const std::string &format, Args... args) {
+    inline bool plot(const A &a, const B &b, const std::string &format, Args... args) {
         return detail::plot_impl<typename detail::is_callable<B>::type>()(a, b, format) && plot(args...);
     }
 
@@ -665,20 +665,20 @@ namespace matplotlibcpp {
      * This group of plot() functions is needed to support initializer lists, i.e. calling
      *    plot( {1,2,3,4} )
      */
-    bool plot(const std::vector<double> &x, const std::vector<double> &y, const std::string &format = "") {
+    inline bool plot(const std::vector<double> &x, const std::vector<double> &y, const std::string &format = "") {
         return plot<double, double>(x, y, format);
     }
 
-    bool plot(const std::vector<double> &y, const std::string &format = "") {
+    inline bool plot(const std::vector<double> &y, const std::string &format = "") {
         return plot<double>(y, format);
     }
 
-    bool plot(const std::vector<double> &x, const std::vector<double> &y,
+    inline bool plot(const std::vector<double> &x, const std::vector<double> &y,
               const std::map<std::string, std::string> &keywords) {
         return plot<double>(x, y, keywords);
     }
 
-    bool named_plot(const std::string &name, const std::vector<double> &x, const std::vector<double> &y,
+    inline bool named_plot(const std::string &name, const std::vector<double> &x, const std::vector<double> &y,
                     const std::string &format = "") {
         return named_plot<double>(name, x, y, format);
     }
