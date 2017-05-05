@@ -270,20 +270,25 @@ namespace matplotlibcpp {
     }
 
     template<typename NumericX, typename NumericY>
-    bool errorbar(const std::vector<NumericX> &x, const std::vector<NumericY> &y, const std::vector<NumericX> &yerr, const std::string &s = "") {
+    bool errorbar(const std::vector<NumericX> &x, const std::vector<NumericY> &y, const std::vector<NumericX> &yerr, const std::string &s = "", const std::string& color = "") {
         assert(x.size() == y.size());
 
         PyObject *kwargs = PyDict_New();
         PyObject *xlist = PyList_New(x.size());
         PyObject *ylist = PyList_New(y.size());
         PyObject *yerrlist = PyList_New(yerr.size());
+        PyObject *pystring = PyString_FromString(s.c_str());
 
         for (size_t i = 0; i < yerr.size(); ++i)
             PyList_SetItem(yerrlist, i, PyFloat_FromDouble(yerr.at(i)));
 
         PyDict_SetItemString(kwargs, "yerr", yerrlist);
+        PyDict_SetItemString(kwargs, "fmt", pystring);
+        if (color != "") {
+            PyDict_SetItemString(kwargs, "ecolor", PyString_FromString(color.c_str()));
+            PyDict_SetItemString(kwargs, "color", PyString_FromString(color.c_str()));
+        }
 
-        PyObject *pystring = PyString_FromString(s.c_str());
 
         for (size_t i = 0; i < x.size(); ++i) {
             PyList_SetItem(xlist, i, PyFloat_FromDouble(x.at(i)));
@@ -379,11 +384,15 @@ namespace matplotlibcpp {
 
     }
 
-    inline void legend() {
-        PyObject *res = PyObject_CallObject(detail::_interpreter::get().s_python_function_legend,
-                                            detail::_interpreter::get().s_python_empty_tuple);
+    inline void legend(const std::string& loc = "best") {
+        PyObject *kwargs = PyDict_New();
+        PyDict_SetItemString(kwargs, "loc", PyString_FromString(loc.c_str()));
+
+        PyObject *res = PyObject_Call(detail::_interpreter::get().s_python_function_legend,
+                                            detail::_interpreter::get().s_python_empty_tuple, kwargs);
         if (!res) throw std::runtime_error("Call to legend() failed.");
 
+        Py_DecRef(kwargs);
         Py_DECREF(res);
     }
 
